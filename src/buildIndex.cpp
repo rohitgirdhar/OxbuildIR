@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <set>
 #include <string>
 #include <fstream>
 #include <boost/filesystem.hpp>
@@ -11,18 +12,18 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-vector<int> readDescriptors(string fpath) {
-    vector<int> descs;
+set<int> readDescriptors(string fpath) {
+    set<int> descs;
     ifstream fin(fpath.c_str());
     if (!fin.is_open()) {
         cerr << "Unable to open file: " << fpath << endl;
-        return vector<int>();
+        return set<int>();
     }
     float temp;
     fin >> temp >> temp;
     int desc;
     while (fin >> desc >> temp >> temp >> temp >> temp >> temp) {
-        descs.push_back(desc);
+        descs.insert(desc);
     }
     fin.close();
     return descs;
@@ -32,13 +33,13 @@ string fpathToIdx(string fpath) {
     return fpath.substr(0, fpath.size() - 4); 
 }
 
-void addToIndex(vector<int> descs, string img_idx, map<int, vector<string> > &invIdx) {
-    for (int i = 0; i < descs.size(); i++) {
-        if (invIdx.count(descs[i]) <= 0) {
+void addToIndex(set<int> descs, string img_idx, map<int, vector<string> > &invIdx) {
+    for (auto iter = descs.begin(); iter != descs.end(); iter++) {
+        if (invIdx.count(*iter) <= 0) {
             // not exists
-            invIdx[descs[i]] = vector<string>();
+            invIdx[*iter] = vector<string>();
         }
-        invIdx[descs[i]].push_back(img_idx);
+        invIdx[*iter].push_back(img_idx);
     }
 }
 
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
     while (rdi != end) {
         img_fpath = (*rdi).path().string();
         img_fname = (*rdi).path().filename().string();
-        vector<int> descs = readDescriptors(img_fpath);
+        set<int> descs = readDescriptors(img_fpath);
         string img_idx = fpathToIdx(img_fname);
         addToIndex(descs, img_idx, invIdx);
         rdi++; count++;
