@@ -48,7 +48,7 @@ void dumpToFile(string output_fpath, map<int, vector<string> > invIdx) {
     fout.open(output_fpath.c_str(), ios::out);
     for (auto iter = invIdx.begin();
             iter != invIdx.end(); ++iter) {
-        fout << iter->first << " ";
+        // fout << iter->first << " "; // not writing the word ID
         for (auto iter2 = iter->second.begin(); 
                 iter2 != iter->second.end(); ++iter2) {
             fout << *iter2 << " "; 
