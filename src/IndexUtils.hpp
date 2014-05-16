@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -23,6 +24,47 @@ set<int> readDescriptors(string fpath) {
         istringstream iss(line);
         iss >> desc;
         descs.insert(desc);
+    }
+    fin.close();
+    return descs;
+}
+
+vector<int> readAllDescriptors(string fpath) {
+    vector<int> descs;
+    ifstream fin(fpath.c_str());
+    if (!fin.is_open()) {
+        cerr << "Unable to open file: " << fpath << endl;
+        return vector<int>();
+    }
+    string line;
+    getline(fin, line); getline(fin, line);
+    int desc;
+    while (getline(fin, line)) {
+        istringstream iss(line);
+        iss >> desc;
+        descs.push_back(desc);
+    }
+    fin.close();
+    return descs;
+}
+
+map<int, int> readDescriptorsWithCounts(string fpath) {
+    map<int,int> descs;
+    ifstream fin(fpath.c_str());
+    if (!fin.is_open()) {
+        cerr << "Unable to open file: " << fpath << endl;
+        return map<int,int>();
+    }
+    string line;
+    getline(fin, line); getline(fin, line);
+    int desc;
+    while (getline(fin, line)) {
+        istringstream iss(line);
+        iss >> desc;
+        if (descs.count(desc) <= 0) {
+            descs[desc] = 0;
+        }
+        descs[desc]++;
     }
     fin.close();
     return descs;
@@ -47,36 +89,117 @@ std::multimap<B,A> flip_map(const std::map<A,B> &src)
     return dst;
 }
 
-vector<string> getClosestImgs(set<int> vws, string invIdxFPath) {
-    ifstream fin(invIdxFPath.c_str());
-    string line;
-    map<string, int> wordCounts;
+/**
+ * Reads the image file and computes TF
+ * @return Pair<freq of vis word, total # of visual words
+ */
+pair<int,int> getWordCounts(int visualWord, string img_id, string dir) {
+    static map<string, vector<int> > vws_rem;
+    if (vws_rem.count(img_id) <= 0) {
+        vws_rem[img_id] = readAllDescriptors(dir + "/" + img_id + ".txt");
+    }
+    vector<int> vws = vws_rem[img_id];
+    return make_pair(count(vws.begin(), vws.end(), visualWord), (int)vws.size());
+}
+
+/**
+ * @param vws The visual words set of the query image
+ * @param N The number of images to search from
+ */
+vector<string> getClosestImgs(
+        set<int> vws, 
+        string dir,
+        map<int, map<string, int> > invIdx,
+        map<string, pair<int, int> > imgStats) {
+    map<string, float> wordCounts;
     auto iter = vws.begin();
-    int lineno = 0;
-    while(getline(fin, line) && iter != vws.end()) {
-        lineno++;
-        if (lineno != *iter) {
-            continue;
-        }
-        iter++;
-        vector<string> imgs;
-        boost::split(imgs, line, boost::is_any_of(" "));
-        for (string img : imgs) {
+    while (iter != vws.end()) {
+        map<string, int> imgs_tfs = invIdx[*iter];
+        for (auto iter = imgs_tfs.begin(); iter != imgs_tfs.end(); ++iter) {
+            string img = iter->first;
             if (img.length() == 0) { // discard empty strings
                 continue;
             }
             if (wordCounts.count(img) <= 0) {
                 wordCounts[img] = 0;
             }
-            wordCounts[img]++;
+            float tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].first);
+            float idf = (imgStats.size() * 1.0f / imgs_tfs.size());
+            wordCounts[img] += tf * idf;
         }
+        iter++;
     }
-    multimap<int, string> countsToImgs = flip_map(wordCounts);
+    multimap<float, string> countsToImgs = flip_map(wordCounts);
     vector<string> res;
     for (auto iter2 = countsToImgs.rbegin(); 
             iter2 != countsToImgs.rend();
             ++iter2) {
         res.push_back(iter2->second);
     }
+    return res;
+}
+
+/**
+ * Output format:
+ * line i : [.. list of image IDs that have descriptor i:<TF>..] 
+ */
+void dumpToFileInvIndex(string output_fpath,
+        string output_idf_fpath,
+        map<int, map<string, int> > invIdx) {
+    ofstream fout, fout_idf;
+    fout.open(output_fpath.c_str(), ios::out);
+    fout_idf.open(output_idf_fpath.c_str(), ios::out);
+    for (auto iter = invIdx.begin();
+            iter != invIdx.end(); ++iter) {
+        // fout << iter->first << " "; // not writing the word ID
+        fout_idf << (iter->second).size() << endl; 
+        for (auto iter2 = iter->second.begin(); 
+                iter2 != iter->second.end(); ++iter2) {
+            fout << iter2->first << ":" << iter2->second << " ";
+        }
+        fout << endl;
+    }
+    fout.close();
+    fout_idf.close();
+}
+
+map<int, map<string, int> > readFromFileInvIndex(string fpath) {
+    ifstream fin(fpath.c_str());
+    string line;
+    vector<string> imgs;
+    map<int, map<string, int> > res;
+    int lineno = 0;
+    while (getline(fin, line)) {
+        lineno++;
+        boost::split(imgs, line, boost::is_any_of(" "));
+        map<string, int> desc_info;
+        for (auto img : imgs) {
+            if (img.length() == 0) continue;
+            int pos = img.find(':');
+            desc_info[img.substr(0, pos)] = stoi(img.substr(pos + 1));
+        }
+        res[lineno] = desc_info;
+    }
+    fin.close();
+    return res;
+}
+
+void dumpToFileImgStats(string fname, map<string, pair<int,int> > img2total_max) {
+    ofstream fout(fname.c_str(), ios::out);
+    for (auto iter = img2total_max.begin(); iter != img2total_max.end(); ++iter) {
+        fout << iter->first << " " << (iter->second).first << " " << (iter->second).second << endl;
+    }
+    fout.close();
+}
+
+map<string, pair<int,int> > readFromFileImgStats(string fpath) {
+    ifstream fin(fpath.c_str());
+    string img_id;
+    int tot, mx;
+    map<string, pair<int,int> > res;
+    while (fin >> img_id >> tot >> mx) {
+        res[img_id] = make_pair(tot, mx);
+    }
+    fin.close();
     return res;
 }

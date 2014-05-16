@@ -20,6 +20,8 @@ int main(int argc, char *argv[]) {
         ("help", "produce this help message")
         ("dir,d", po::value<string>()->required(), "Images ocx1 dir")
         ("iidx,i", po::value<string>()->required(), "Inverted Index file")
+        ("iidx-counts,c", po::value<string>()->required(), "Inverted Index Counts file")
+        ("imgstats,s", po::value<string>()->required(), "Image stats ffile")
         ("query,q", po::value<string>()->required(), "Query image ID")
         ("num-select,k", po::value<int>()->required(), "num of images to select")
         ;
@@ -34,10 +36,17 @@ int main(int argc, char *argv[]) {
     }
 
     int K = vm["num-select"].as<int>();
+    map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["iidx"].as<string>());
+    cerr << "Read inverted index" << endl;
+    map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["imgstats"].as<string>());
 
     set<int> vws = readDescriptors(vm["dir"].as<string>() + "/" +
             vm["query"].as<string>() + ".txt");
-    vector<string> ids = getClosestImgs(vws, vm["iidx"].as<string>());
+    vector<string> ids = getClosestImgs(
+            vws,
+            vm["dir"].as<string>(),
+            invIdx,
+            imgStats);
     for (int i = 0; i < min((int)ids.size(), K); i++) {
         cout << ids[i].substr(5) << endl;
     }
