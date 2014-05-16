@@ -3,7 +3,9 @@ function S = genVecFromImg(img_fpath, vocab_size, IDF_fpath, N)
 img_features = dlmread(img_fpath);
 img_features = img_features(3:end, 1);
 nfeatures = length(img_features);
-S = sparse(ones(1, nfeatures), img_features', ones(1, nfeatures), 1, vocab_size);
+% Using Full vectors
+% Leads to almost 3x speedup compared to sparse.
+S = full(sparse(ones(1, nfeatures), img_features', ones(1, nfeatures), 1, vocab_size));
 max_tf = full(max(S));
 
 % Set as TF x IDF
@@ -11,6 +13,7 @@ persistent word_freqs;
 if isempty(word_freqs)
     disp('Reading word frequency file...');
     word_freqs = dlmread(IDF_fpath);
+    disp('Done.');
 end
 [r, c, v] = find(S);
 for i = c
