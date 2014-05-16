@@ -43,6 +43,10 @@ void addToIndex(set<int> descs, string img_idx, map<int, vector<string> > &invId
     }
 }
 
+/**
+ * Output format:
+ * line i : [.. list of image IDs that have descriptor i..] 
+ */
 void dumpToFile(string output_fpath, map<int, vector<string> > invIdx) {
     ofstream fout;
     fout.open(output_fpath.c_str(), ios::out);
