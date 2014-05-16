@@ -18,7 +18,7 @@ depend: .depend
 
 include .depend
 
-%: %.cpp %.o
+%: %.cpp
 	$(CXX) -Iinclude $(CXXFLAGS) $(INC_BOOST) -o $@ $< $(LIBS) $(LDFLAGS)
 
 clean:

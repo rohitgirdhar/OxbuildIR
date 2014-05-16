@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
             vm["query"].as<string>() + ".txt");
     vector<string> ids = getClosestImgs(vws, vm["iidx"].as<string>());
     for (int i = 0; i < min((int)ids.size(), K); i++) {
-        cout << ids[i] << endl;
+        cout << ids[i].substr(5) << endl;
     }
     return 0;
 }

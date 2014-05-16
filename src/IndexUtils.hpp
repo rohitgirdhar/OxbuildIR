@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <set>
 #include <string>
 #include <vector>
@@ -15,10 +16,12 @@ set<int> readDescriptors(string fpath) {
         cerr << "Unable to open file: " << fpath << endl;
         return set<int>();
     }
-    float temp;
-    fin >> temp >> temp;
+    string line;
+    getline(fin, line); getline(fin, line);
     int desc;
-    while (fin >> desc >> temp >> temp >> temp >> temp >> temp) {
+    while (getline(fin, line)) {
+        istringstream iss(line);
+        iss >> desc;
         descs.insert(desc);
     }
     fin.close();
