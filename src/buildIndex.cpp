@@ -7,31 +7,11 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include "IndexUtils.hpp"
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 using namespace std;
-
-set<int> readDescriptors(string fpath) {
-    set<int> descs;
-    ifstream fin(fpath.c_str());
-    if (!fin.is_open()) {
-        cerr << "Unable to open file: " << fpath << endl;
-        return set<int>();
-    }
-    float temp;
-    fin >> temp >> temp;
-    int desc;
-    while (fin >> desc >> temp >> temp >> temp >> temp >> temp) {
-        descs.insert(desc);
-    }
-    fin.close();
-    return descs;
-}
-
-string fpathToIdx(string fpath) {
-    return fpath.substr(0, fpath.size() - 4); 
-}
 
 void addToIndex(set<int> descs, string img_idx, map<int, vector<string> > &invIdx) {
     for (auto iter = descs.begin(); iter != descs.end(); iter++) {
