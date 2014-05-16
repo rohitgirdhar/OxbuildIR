@@ -1,0 +1,166 @@
+all_souls_1
+Read inverted index
+0.330033
+all_souls_2
+Read inverted index
+0.573208
+all_souls_3
+Read inverted index
+0.610093
+all_souls_4
+Read inverted index
+0.597593
+all_souls_5
+Read inverted index
+0.521753
+ashmolean_1
+Read inverted index
+0.716286
+ashmolean_2
+Read inverted index
+0.536916
+ashmolean_3
+Read inverted index
+0.153815
+ashmolean_4
+Read inverted index
+0.416827
+ashmolean_5
+Read inverted index
+0.487695
+balliol_1
+Read inverted index
+0.707094
+balliol_2
+Read inverted index
+0.43109
+balliol_3
+Read inverted index
+0.389017
+balliol_4
+Read inverted index
+0.526868
+balliol_5
+Read inverted index
+0.611801
+bodleian_1
+Read inverted index
+0.233761
+bodleian_2
+Read inverted index
+0.703921
+bodleian_3
+Read inverted index
+0.52002
+bodleian_4
+Read inverted index
+0.834294
+bodleian_5
+Read inverted index
+0.79836
+christ_church_1
+Read inverted index
+0.670546
+christ_church_2
+Read inverted index
+0.727265
+christ_church_3
+Read inverted index
+0.658958
+christ_church_4
+Read inverted index
+0.735028
+christ_church_5
+Read inverted index
+0.0872299
+cornmarket_1
+Read inverted index
+0.60905
+cornmarket_2
+Read inverted index
+0.117807
+cornmarket_3
+Read inverted index
+0.561428
+cornmarket_4
+Read inverted index
+0.559825
+cornmarket_5
+Read inverted index
+0.526992
+hertford_1
+Read inverted index
+0.709562
+hertford_2
+Read inverted index
+0.623202
+hertford_3
+Read inverted index
+0.60959
+hertford_4
+Read inverted index
+0.740102
+hertford_5
+Read inverted index
+0.642333
+keble_1
+Read inverted index
+0.627696
+keble_2
+Read inverted index
+0.718865
+keble_3
+Read inverted index
+0.733224
+keble_4
+Read inverted index
+0.871001
+keble_5
+Read inverted index
+0.744599
+magdalen_1
+Read inverted index
+0.0853205
+magdalen_2
+Read inverted index
+0.148212
+magdalen_3
+Read inverted index
+0.102877
+magdalen_4
+Read inverted index
+0.04007
+magdalen_5
+Read inverted index
+0.0916049
+pitt_rivers_1
+Read inverted index
+0.817725
+pitt_rivers_2
+Read inverted index
+1
+pitt_rivers_3
+Read inverted index
+1
+pitt_rivers_4
+Read inverted index
+1
+pitt_rivers_5
+Read inverted index
+0.974206
+radcliffe_camera_1
+Read inverted index
+0.584736
+radcliffe_camera_2
+Read inverted index
+0.607116
+radcliffe_camera_3
+Read inverted index
+0.531542
+radcliffe_camera_4
+Read inverted index
+0.457952
+radcliffe_camera_5
+Read inverted index
+0.529701
+.56
