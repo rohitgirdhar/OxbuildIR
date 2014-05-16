@@ -5,10 +5,21 @@ INC_BOOST=-I${BOOST_ROOT}
 LIBS=$(BOOST_LIBS)
 LDFLAGS=-lboost_program_options -lboost_filesystem -lboost_system
 
-all: buildIndex getClosest
+SRCS = buildIndex.cpp getClosest.cpp
+OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
-%: %.cpp
-	$(CXX) $(CXXFLAGS) $(INC_BOOST) -o $@ $< $(LIBS) $(LDFLAGS) 
+all: getClosest buildIndex
 
-clean: 
+depend: .depend
+
+.depend: $(SRCS)
+	rm -rf ./.depend
+	$(CXX) $(CXXFLAGS) -MM $^ -MF ./.depend
+
+include .depend
+
+%: %.cpp %.o
+	$(CXX) -Iinclude $(CXXFLAGS) $(INC_BOOST) -o $@ $< $(LIBS) $(LDFLAGS)
+
+clean:
 	rm -rf buildIndex getClosest
