@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <ctime>
 #include "IndexUtils.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -13,6 +14,12 @@ namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 using namespace std;
+
+int diff_ms(timeval t1, timeval t2)
+{
+    return (((t1.tv_sec - t2.tv_sec) * 1000000) + 
+            (t1.tv_usec - t2.tv_usec))/1000;
+}
 
 int main(int argc, char *argv[]) {
     po::options_description desc("Allowed Options");
@@ -39,14 +46,16 @@ int main(int argc, char *argv[]) {
     map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["iidx"].as<string>());
     cerr << "Read inverted index" << endl;
     map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["imgstats"].as<string>());
-
+    
     set<int> vws = readDescriptors(vm["dir"].as<string>() + "/" +
             vm["query"].as<string>() + ".txt");
+    int start_time = clock();
     vector<string> ids = getClosestImgs(
             vws,
             vm["dir"].as<string>(),
             invIdx,
             imgStats);
+    cerr << "Time in search " << clock() - start_time << " ms" << endl;
     for (int i = 0; i < min((int)ids.size(), K); i++) {
         cout << ids[i].substr(5) << endl;
     }
