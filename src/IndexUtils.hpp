@@ -173,7 +173,8 @@ map<int, map<string, int> > readFromFileInvIndex(string fpath) {
         lineno++;
         boost::split(imgs, line, boost::is_any_of(" "));
         map<string, int> desc_info;
-        for (auto img : imgs) {
+        for (int i = 0; i < imgs.size(); i++) {
+            string img = imgs[i];
             if (img.length() == 0) continue;
             int pos = img.find(':');
             desc_info[img.substr(0, pos)] = stoi(img.substr(pos + 1));
