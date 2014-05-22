@@ -1,0 +1,4 @@
+WORDS_FILE=../oxford_building_dataset/word_oxc1_hesaff_sift_16M_1M/
+INV_IDX=invIndex.txt
+INV_IDX_FREQ=invIndexFreq.txt
+IMG_STATS=imgStats.txt

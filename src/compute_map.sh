@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
-    echo 'Usage ./compute_map.sh <path to GT directory> <path to compute_map executable>'
+    echo 'Usage ./compute_map.sh <path to GT directory> <path to compute_map executable> <input dir, with invIndex.txt etc>'
     exit -1
 fi
 
+IP_DIR=$3
 COMPUTE_AP_EXEC=$2
 TMP_FILE=`mktemp`
 TMP_Q_FILE=`mktemp`
@@ -24,7 +25,7 @@ done
 echo 'Done'
 
 echo 'Writing output into' $TMP_DIR
-bash runIR_batch.sh $TMP_FILE $TMP_DIR
+bash runIR_batch.sh $TMP_FILE $IP_DIR $TMP_DIR
 echo 'Done'
 
 echo '---AP values---'
