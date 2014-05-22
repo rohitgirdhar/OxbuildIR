@@ -11,6 +11,10 @@
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
+#define INV_IDX_FNAME "invIndex.txt"
+#define INV_IDX_FREQ_FNAME "invIndexFreq.txt"
+#define IMG_STATS_FNAME "imgStats.txt"
+
 using namespace std;
 
 void addToIndex(map<int,int> descs, string img_idx, map<int, map<string, int> > &invIdx) {
@@ -28,9 +32,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
         ("help", "produce this help message")
         ("dir,d", po::value<string>()->required(), "directory with oxc1 files")
-        ("output,o", po::value<string>()->required(), "Output Inverted Index file")
-        ("output-counts,c", po::value<string>()->required(), "Output IDF counts file")
-        ("output-img-stats,s", po::value<string>()->required(), "Output image name with total and max freq of descs")
+        ("output,o", po::value<string>()->required(), "Output files dir")
         ;
 
     po::variables_map vm;
@@ -69,10 +71,10 @@ int main(int argc, char *argv[]) {
         rdi++; count++;
         cout << "Done for " << img_fname << " (" << count << ")"<< endl;
     }
-    dumpToFileInvIndex(vm["output"].as<string>(),
-            vm["output-counts"].as<string>(),
+    dumpToFileInvIndex(vm["output"].as<string>() + "/" + INV_IDX_FNAME,
+            vm["output"].as<string>() + "/" + INV_IDX_FREQ_FNAME,
             invIdx);
-    dumpToFileImgStats(vm["output-img-stats"].as<string>(),
+    dumpToFileImgStats(vm["output"].as<string>() + IMG_STATS_FNAME,
             img2total_max);
                 
     return 0;
