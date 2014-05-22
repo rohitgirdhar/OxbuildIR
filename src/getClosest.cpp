@@ -15,12 +15,6 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-int diff_ms(timeval t1, timeval t2)
-{
-    return (((t1.tv_sec - t2.tv_sec) * 1000000) + 
-            (t1.tv_usec - t2.tv_usec))/1000;
-}
-
 void runSearch(string dir,
         string query,
         map<int, map<string, int> > &invIdx,
