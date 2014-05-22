@@ -20,3 +20,10 @@ Eg in :
 ```bash
 $ bash runIR_batch <inp file with list of images> <output dir>
 ```
+
+Evalutaion
+----------
+
+```bash
+$ bash compute_map.sh ~/work/project/datasets/oxford_building/gt/ ../oxford_building_dataset/compute_ap 
+```
