@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
         ("help", "produce this help message")
         ("dir,d", po::value<string>()->required(), "directory with oxc1 files")
-        ("output,o", po::value<string>()->required(), "Output file")
+        ("output,o", po::value<string>()->required(), "Output Inverted Index file")
         ("output-counts,c", po::value<string>()->required(), "Output IDF counts file")
         ("output-img-stats,s", po::value<string>()->required(), "Output image name with total and max freq of descs")
         ;
