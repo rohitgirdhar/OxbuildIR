@@ -149,15 +149,19 @@ void dumpToFileInvIndex(string output_fpath,
     ofstream fout, fout_idf;
     fout.open(output_fpath.c_str(), ios::out);
     fout_idf.open(output_idf_fpath.c_str(), ios::out);
+    int prev_kpt_printed = 1;
     for (auto iter = invIdx.begin();
             iter != invIdx.end(); ++iter) {
-        // fout << iter->first << " "; // not writing the word ID
+        // leave lines blank for ids that don't exist
+        for (int i = 0; i < (iter->first - prev_kpt_printed); i++) fout << endl;
+
         fout_idf << (iter->second).size() << endl; 
         for (auto iter2 = iter->second.begin(); 
                 iter2 != iter->second.end(); ++iter2) {
             fout << iter2->first << ":" << iter2->second << " ";
         }
         fout << endl;
+        prev_kpt_printed = iter->first + 1;
     }
     fout.close();
     fout_idf.close();
