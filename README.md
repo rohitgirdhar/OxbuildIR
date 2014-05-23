@@ -26,5 +26,6 @@ Evalutaion
 
 1. Copy the `config.sh.sample` to `config.sh` and set the parameter values
 ```bash
-$ bash compute_map.sh ~/work/project/datasets/oxford_building/gt/ ../oxford_building_dataset/compute_ap 
+$ bash compute_map.sh ../oxford_building_dataset/gt/ ../oxford_building_dataset/compute_ap results/subset_2000_inliers/ 5062  ~/work/project/10_CanonicalViews/src/results/sel_oxbuild_2000_inliers_names.txt
+
 ```
