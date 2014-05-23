@@ -34,6 +34,7 @@ do
     fbase=$line
     qimg=$line2
     ap=`${COMPUTE_AP_EXEC} ${1}/${fbase} ${TMP_DIR}/${qimg}.out`
+    ap=`echo ${ap} | sed -e 's/[eE]+*/\\*10\\^/'` # to handle scientific notation for bc
     echo $qimg $ap
     tot=$(bc <<< "scale=2;$tot+$ap")
     count=`expr $count + 1`
