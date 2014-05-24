@@ -2,7 +2,7 @@
 
 if [ $# -lt 4 ]
 then
-    echo    'Usage ./compute_map.sh -g <path to GT directory>' \
+    echo    'Usage ./compute_map.sh <path to GT directory>' \
             '<path to compute_map executable>'  \
             '<input dir, with invIndex.txt etc>' \
             '<K : precision at K. Use only with using compute_p. Otherwise (for AP) use #images>' \
