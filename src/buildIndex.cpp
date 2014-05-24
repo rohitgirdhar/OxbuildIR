@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
         ("help", "produce this help message")
         ("dir,d", po::value<string>()->required(), "directory with oxc1 files")
-        ("output,o", po::value<string>()->required(), "Output files dir")
+        ("output,o", po::value<string>()->required(), "Output files dir [MUST EXIST]")
         ;
 
     po::variables_map vm;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     dumpToFileInvIndex(vm["output"].as<string>() + "/" + INV_IDX_FNAME,
             vm["output"].as<string>() + "/" + INV_IDX_FREQ_FNAME,
             invIdx);
-    dumpToFileImgStats(vm["output"].as<string>() + IMG_STATS_FNAME,
+    dumpToFileImgStats(vm["output"].as<string>() + "/" + IMG_STATS_FNAME,
             img2total_max);
                 
     return 0;
