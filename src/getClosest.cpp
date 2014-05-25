@@ -86,7 +86,11 @@ int main(int argc, char *argv[]) {
                     ids);
             ofstream fout((output_dir + "/" + line + ".out").c_str(), ios::out);
             for (int i = 0; i < min((int)ids.size(), K); i++) {
-                fout << ids[i].first.substr(5) << endl;
+                fout << ids[i].first.substr(5);
+                if (vm.count("debug")) {
+                    fout << " " << ids[i].second;
+                }
+                fout << endl;
             }
             fout.close();
             cerr << "Done for " << line << endl;
