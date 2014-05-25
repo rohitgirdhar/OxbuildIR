@@ -106,7 +106,7 @@ pair<int,int> getWordCounts(int visualWord, string img_id, string dir) {
  * @param vws The visual words set of the query image
  * @param N The number of images to search from
  */
-vector<string> getClosestImgs(
+vector<pair<string, float> > getClosestImgs(
         set<int> vws, 
         string dir,
         map<int, map<string, int> > invIdx,
@@ -130,11 +130,11 @@ vector<string> getClosestImgs(
         iter++;
     }
     multimap<float, string> countsToImgs = flip_map(wordCounts);
-    vector<string> res;
+    vector<pair<string, float> > res;
     for (auto iter2 = countsToImgs.rbegin(); 
             iter2 != countsToImgs.rend();
             ++iter2) {
-        res.push_back(iter2->second);
+        res.push_back(make_pair(iter2->second, iter2->first));
     }
     return res;
 }

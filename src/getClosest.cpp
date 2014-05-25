@@ -19,7 +19,7 @@ void runSearch(string dir,
         string query,
         map<int, map<string, int> > &invIdx,
         map<string, pair<int, int> > &imgStats,
-        vector<string> &outputIDs) {
+        vector<pair<string, float> > &outputIDs) {
     int start_time = clock();
     set<int> vws = readDescriptors(dir + "/" +
             query + ".txt");
@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
         ("num-select,k", po::value<int>()->required(), "num of images to select")
         ("query-file,f", po::value<string>(), "Query image IDs file path. Required if q = -1")
         ("output-dir,o", po::value<string>(), "Outputs directory. Required if q = -1")
+        ("debug,g", "Set flag to print scores in output")
         ;
 
     po::variables_map vm;
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]) {
     map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["imgstats"].as<string>());
 
     string query = vm["query"].as<string>();
-    vector<string> ids;
+    vector<pair<string,float> > ids;
     if (query.compare("-1") == 0) {
         if (!vm.count("query-file") || !vm.count("output-dir")) {
             cerr << "Check CLI" << endl;
@@ -84,7 +85,7 @@ int main(int argc, char *argv[]) {
                     ids);
             ofstream fout((output_dir + "/" + line + ".out").c_str(), ios::out);
             for (int i = 0; i < min((int)ids.size(), K); i++) {
-                fout << ids[i].substr(5) << endl;
+                fout << ids[i].first.substr(5) << endl;
             }
             fout.close();
             cerr << "Done for " << line << endl;
@@ -97,7 +98,11 @@ int main(int argc, char *argv[]) {
                 imgStats,
                 ids);
         for (int i = 0; i < min((int)ids.size(), K); i++) {
-            cout << ids[i].substr(5) << endl;
+            cout << ids[i].first.substr(5);
+            if (vm.count("debug")) {
+                cout << " " << ids[i].second;
+            }
+            cout << endl;
         }
     }
     return 0;
