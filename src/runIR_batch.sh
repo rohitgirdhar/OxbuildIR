@@ -11,5 +11,5 @@ Q=$1
 K=$4
 IP_DIR=$2
 mkdir -p $2
-./getClosest -d $WORDS_FILE -i ${IP_DIR}/${INV_IDX}  -k ${K} \
--q -1 -c ${IP_DIR}/${INV_IDX_FREQ} -s ${IP_DIR}/${IMG_STATS} -o $3 -f ${Q}
+./getClosest -d $WORDS_FILE -i ${IP_DIR} -k ${K} \
+-q -1 -o $3 -f ${Q}

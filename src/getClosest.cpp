@@ -15,6 +15,9 @@ namespace po = boost::program_options;
 
 using namespace std;
 
+#define INV_IDX_FNAME "invIndex.txt"
+#define IMG_STATS_FNAME "imgStats.txt"
+
 void runSearch(string dir,
         string query,
         map<int, map<string, int> > &invIdx,
@@ -36,9 +39,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
         ("help", "produce this help message")
         ("dir,d", po::value<string>()->required(), "Images ocx1 dir")
-        ("iidx,i", po::value<string>()->required(), "Inverted Index file")
-        ("iidx-counts,c", po::value<string>()->required(), "Inverted Index Counts file")
-        ("imgstats,s", po::value<string>()->required(), "Image stats ffile")
+        ("input-dir,i", po::value<string>()->required(), "Directory with iidx, idex_freq, imgstats files")
         ("query,q", po::value<string>()->required(), "Query image ID. Enter -1 iif giving a query file")
         ("num-select,k", po::value<int>()->required(), "num of images to select")
         ("query-file,f", po::value<string>(), "Query image IDs file path. Required if q = -1")
@@ -62,9 +63,9 @@ int main(int argc, char *argv[]) {
     }
 
     int K = vm["num-select"].as<int>();
-    map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["iidx"].as<string>());
+    map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["input-dir"].as<string>() + "/" + INV_IDX_FNAME);
     cerr << "Read inverted index" << endl;
-    map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["imgstats"].as<string>());
+    map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["input-dir"].as<string>() + "/" + IMG_STATS_FNAME);
 
     string query = vm["query"].as<string>();
     vector<pair<string,float> > ids;
