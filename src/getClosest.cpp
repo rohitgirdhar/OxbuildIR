@@ -21,9 +21,10 @@ using namespace std;
 void runSearch(string dir,
         string query,
         vector<float> bounding_box,
-        map<int, map<string, int> > &invIdx,
-        map<string, pair<int, int> > &imgStats,
-        vector<pair<string, float> > &outputIDs) {
+        const map<int, map<string, int> > &invIdx,
+        const map<string, pair<int, int> > &imgStats,
+        vector<pair<string, float> > &outputIDs,
+        bool geomRerank) {
     int start_time = clock();
     map<int, int> vws = readDescriptorsWithCounts(dir + "/" +
             query + ".txt", bounding_box);
@@ -32,6 +33,11 @@ void runSearch(string dir,
             dir,
             invIdx,
             imgStats);
+    if (!geomRerank) return;
+    vws.clear(); // for memory free
+    map<int, vector<pair<float,float> > > vws_pos = readDescriptorsWithPos(dir + "/" +
+            query + ".txt", bounding_box);
+    geometricReranking(outputIDs, vws_pos, dir);
     cerr << "Time in search " << clock() - start_time << " ms" << endl;
 }
 
@@ -46,7 +52,8 @@ int main(int argc, char *argv[]) {
         ("query-file,f", po::value<string>(), "Query image IDs file path. Required if q = -1")
         ("output-dir,o", po::value<string>(), "Outputs directory. Required if q = -1")
         ("bounding-box,b", po::value<vector<float> >()->multitoken(), "The bounding box coordinates, in oxford query file order. qx1, qy1, qx2, qy2")
-        ("debug,g", "Set flag to print scores in output")
+        ("geom-rerank,r", po::bool_switch()->default_value(false), "Pass flag to perform geometric reranking")
+        ("debug,g", po::bool_switch()->default_value(false), "Set flag to print scores in output")
         ;
 
     po::variables_map vm;
@@ -96,11 +103,12 @@ int main(int argc, char *argv[]) {
                     bounding_box,
                     invIdx,
                     imgStats,
-                    ids);
+                    ids,
+                    vm["geom-rerank"].as<bool>());
             ofstream fout((output_dir + "/" + img_name + ".out").c_str(), ios::out);
             for (int i = 0; i < min((int)ids.size(), K); i++) {
                 fout << ids[i].first.substr(5);
-                if (vm.count("debug")) {
+                if (vm["debug"].as<bool>()) {
                     fout << " " << ids[i].second;
                 }
                 fout << endl;
@@ -118,10 +126,11 @@ int main(int argc, char *argv[]) {
                 bounding_box,
                 invIdx,
                 imgStats,
-                ids);
+                ids,
+                vm["geom-rerank"].as<bool>());
         for (int i = 0; i < min((int)ids.size(), K); i++) {
             cout << ids[i].first.substr(5);
-            if (vm.count("debug")) {
+            if (vm["debug"].as<bool>()) {
                 cout << " " << ids[i].second;
             }
             cout << endl;

@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -6,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -81,6 +83,34 @@ map<int, int> readDescriptorsWithCounts(string fpath,
             descs[desc] = 0;
         }
         descs[desc]++;
+    }
+    fin.close();
+    return descs;
+}
+
+map<int, vector<pair<float,float> > > readDescriptorsWithPos(string fpath,
+        vector<float> bounding_box) {
+    if (bounding_box.size() == 4) {
+        cerr << "Using bounding box to filter "<< fpath << endl;
+    }
+    map<int, vector<pair<float,float> > > descs;
+    ifstream fin(fpath.c_str());
+    if (!fin.is_open()) {
+        cerr << "Unable to open file: " << fpath << endl;
+        return descs;
+    }
+    string line;
+    getline(fin, line); getline(fin, line);
+    int desc;
+    float x, y;
+    while (getline(fin, line)) {
+        istringstream iss(line);
+        iss >> desc >> x >> y;
+        if (!isInside(x, y, bounding_box)) continue; 
+        if (descs.count(desc) <= 0) {
+            descs[desc] = vector<pair<float,float> >();
+        }
+        descs[desc].push_back(make_pair(x,y));
     }
     fin.close();
     return descs;
@@ -230,4 +260,49 @@ map<string, pair<int,int> > readFromFileImgStats(string fpath) {
     }
     fin.close();
     return res;
+}
+
+int countFInliers(map<int, vector<pair<float, float> > > vws1,
+        map<int, vector<pair<float, float> > > vws2) {
+    vector<cv::Point2f> pts1, pts2;
+    for (auto iter = vws2.begin(); iter != vws2.end(); ++iter) {
+        if (vws1.count(iter->first) <= 0) continue;
+        for (auto psns1 = begin(iter->second); 
+                psns1 != end(iter->second); ++psns1) {
+            for (auto psns2 = vws1[iter->first].begin(); 
+                    psns2 != vws1[iter->first].end(); ++psns2) {
+                pts1.push_back(cv::Point2f(psns1->first, psns1->second));
+                pts2.push_back(cv::Point2f(psns2->first, psns2->second));
+            }
+        }
+    }
+    vector<uchar> mask;
+    cv::findFundamentalMat(pts1, pts2, cv::RANSAC, 3, 0.99, mask);
+    return count_if(mask.begin(), mask.end(), [](uchar d){ return d; });
+}
+
+void geometricReranking(vector<pair<string, float> > &rankedList,
+        const map<int, vector<pair<float,float> > > &vws,
+        const string &dir) {
+    int K = 100;
+    cout << "Geometrical Reranking of first " << K << " elements" << endl;
+    vector<pair<int,int> > num_inliers;
+    for (int i = 0; i < min(K, (int) rankedList.size()); i++) {
+        auto vws2 = readDescriptorsWithPos(
+                dir + "/" + rankedList[i].first + ".txt",
+                vector<float>());
+        int inliers = countFInliers(vws, vws2);
+        num_inliers.push_back(make_pair(inliers, i));
+    }
+    sort(num_inliers.begin(), num_inliers.end());
+    // SWAPS in main list
+    int i = 0;
+    for (auto iter = num_inliers.begin(); 
+            iter != num_inliers.end(); ++iter, ++i) {
+        if (iter->second > i) {
+            auto temp = rankedList[iter->second];
+            rankedList[iter->second] = rankedList[i];
+            rankedList[i] = temp;
+        }
+    }
 }

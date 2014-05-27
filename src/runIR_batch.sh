@@ -12,4 +12,4 @@ K=$4
 IP_DIR=$2
 mkdir -p $2
 ./getClosest -d $WORDS_FILE -i ${IP_DIR} -k ${K} \
--q -1 -o $3 -f ${Q}
+-q -1 -o $3 -f ${Q} -r
