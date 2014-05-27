@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     while (rdi != end) {
         img_fpath = (*rdi).path().string();
         img_fname = (*rdi).path().filename().string();
-        map<int,int> descs = readDescriptorsWithCounts(img_fpath);
+        map<int,int> descs = readDescriptorsWithCounts(img_fpath, vector<float>());
         int total_descs = 0, max_descs = -1;
         for(auto iter = descs.begin(); iter != descs.end(); ++iter) {
             total_descs += iter->second;

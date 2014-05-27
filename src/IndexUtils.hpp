@@ -48,7 +48,18 @@ vector<int> readAllDescriptors(string fpath) {
     return descs;
 }
 
-map<int, int> readDescriptorsWithCounts(string fpath) {
+bool isInside(float x, float y, vector<float> bounding_box) {
+    if (bounding_box.size() == 0) return true;
+    float qx1 = bounding_box[0];
+    float qy1 = bounding_box[1];
+    float qx2 = bounding_box[2];
+    float qy2 = bounding_box[3];
+    if (x < qx1 || x > qx2 || y < qy1 || y > qy2) return false;
+    return true;
+}
+
+map<int, int> readDescriptorsWithCounts(string fpath,
+        vector<float> bounding_box) {
     map<int,int> descs;
     ifstream fin(fpath.c_str());
     if (!fin.is_open()) {
@@ -58,9 +69,11 @@ map<int, int> readDescriptorsWithCounts(string fpath) {
     string line;
     getline(fin, line); getline(fin, line);
     int desc;
+    float x, y;
     while (getline(fin, line)) {
         istringstream iss(line);
-        iss >> desc;
+        iss >> desc >> x >> y;
+        if (!isInside(x, y, bounding_box)) continue; 
         if (descs.count(desc) <= 0) {
             descs[desc] = 0;
         }
@@ -107,29 +120,35 @@ pair<int,int> getWordCounts(int visualWord, string img_id, string dir) {
  * @param N The number of images to search from
  */
 vector<pair<string, float> > getClosestImgs(
-        set<int> vws, 
+        map<int,int> vws, 
         string dir,
         map<int, map<string, int> > invIdx,
         map<string, pair<int, int> > imgStats) {
-    map<string, float> wordCounts;
+    map<string, double> wordCounts;
     auto iter = vws.begin();
+    int total_vw_in_query = accumulate(begin(vws), 
+           end(vws), 
+           0, 
+           [](const int previous, const pair<int,int>& p) { 
+           return previous+p.second; });
     while (iter != vws.end()) {
-        map<string, int> imgs_tfs = invIdx[*iter];
-        for (auto iter = imgs_tfs.begin(); iter != imgs_tfs.end(); ++iter) {
-            string img = iter->first;
+        map<string, int> imgs_tfs = invIdx[iter->first];
+        for (auto iter2 = imgs_tfs.begin(); iter2 != imgs_tfs.end(); ++iter2) {
+            string img = iter2->first;
             if (img.length() == 0) { // discard empty strings
                 continue;
             }
             if (wordCounts.count(img) <= 0) {
                 wordCounts[img] = 0;
             }
-            float tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].first);
-            float idf = (imgStats.size() * 1.0f / imgs_tfs.size());
+//            float tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].second);
+            double tf = min(iter->second, imgs_tfs[img]) * 1.0 / max( imgStats[img].first, total_vw_in_query);
+            double idf = log10(imgStats.size() * 1.0 / imgs_tfs.size());
             wordCounts[img] += tf * idf;
         }
         iter++;
     }
-    multimap<float, string> countsToImgs = flip_map(wordCounts);
+    multimap<double, string> countsToImgs = flip_map(wordCounts);
     vector<pair<string, float> > res;
     for (auto iter2 = countsToImgs.rbegin(); 
             iter2 != countsToImgs.rend();

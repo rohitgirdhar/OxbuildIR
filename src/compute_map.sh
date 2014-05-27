@@ -23,9 +23,10 @@ count=0
 echo -n 'Making list of query in' $TMP_FILE '...'
 for file in `ls ${1}/*_query.txt`
 do
-    qimg=`cat $file | cut -f1 -d' '`
+    qimg_with_bounds=`cat $file`
+    qimg=`echo $qimg_with_bounds | cut -f1 -d' '`
     fbase=`basename $file | sed "s/..........$//"`
-    echo $qimg | cat >> $TMP_FILE
+    echo $qimg_with_bounds | cat >> $TMP_FILE
     echo $fbase | cat >> $TMP_Q_FILE
 done
 echo 'Done'
@@ -38,10 +39,16 @@ echo '---AP values---'
 while read line && read -u 3 line2
 do
     fbase=$line
-    qimg=$line2
+    qimg_with_bounds=$line2
+    qimg=`echo $qimg_with_bounds | cut -f1 -d' '`
     ap_o=`${COMPUTE_AP_EXEC} ${1}/${fbase} ${TMP_DIR}/${qimg}.out ${SEL_LIST}`
     ap=`echo ${ap_o} | sed -e 's/[eE]+*/\\*10\\^/'` # to handle scientific notation for bc
     echo $qimg $ap_o '=' $ap
+# IGNORE NAN values
+#    if [ $ap = "-nan" ]
+#    then
+#        continue
+#    fi
     tot=$(bc <<< "scale=2;$tot+$ap")
     count=`expr $count + 1`
 done < $TMP_Q_FILE 3< $TMP_FILE

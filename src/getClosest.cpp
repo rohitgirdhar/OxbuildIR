@@ -20,12 +20,13 @@ using namespace std;
 
 void runSearch(string dir,
         string query,
+        vector<float> bounding_box,
         map<int, map<string, int> > &invIdx,
         map<string, pair<int, int> > &imgStats,
         vector<pair<string, float> > &outputIDs) {
     int start_time = clock();
-    set<int> vws = readDescriptors(dir + "/" +
-            query + ".txt");
+    map<int, int> vws = readDescriptorsWithCounts(dir + "/" +
+            query + ".txt", bounding_box);
     outputIDs = getClosestImgs(
             vws,
             dir,
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) {
         ("num-select,k", po::value<int>()->required(), "num of images to select")
         ("query-file,f", po::value<string>(), "Query image IDs file path. Required if q = -1")
         ("output-dir,o", po::value<string>(), "Outputs directory. Required if q = -1")
+        ("bounding-box,b", po::value<vector<float> >()->multitoken(), "The bounding box coordinates, in oxford query file order. qx1, qy1, qx2, qy2")
         ("debug,g", "Set flag to print scores in output")
         ;
 
@@ -69,6 +71,7 @@ int main(int argc, char *argv[]) {
 
     string query = vm["query"].as<string>();
     vector<pair<string,float> > ids;
+    vector<float> bounding_box;
     if (query.compare("-1") == 0) {
         if (!vm.count("query-file") || !vm.count("output-dir")) {
             cerr << "Check CLI" << endl;
@@ -79,12 +82,21 @@ int main(int argc, char *argv[]) {
         ifstream fin(inp_file.c_str());
         string line;
         while (getline(fin, line)) {
+            istringstream iss(line);
+            string img_name;
+            float qx1, qx2, qy1, qy2;
+            iss >> img_name >> qx1 >> qy1 >> qx2 >> qy2;
+            bounding_box.push_back(qx1);
+            bounding_box.push_back(qy1);
+            bounding_box.push_back(qx2);
+            bounding_box.push_back(qy2);
             runSearch(vm["dir"].as<string>(),
-                    line,
+                    img_name,
+                    bounding_box,
                     invIdx,
                     imgStats,
                     ids);
-            ofstream fout((output_dir + "/" + line + ".out").c_str(), ios::out);
+            ofstream fout((output_dir + "/" + img_name + ".out").c_str(), ios::out);
             for (int i = 0; i < min((int)ids.size(), K); i++) {
                 fout << ids[i].first.substr(5);
                 if (vm.count("debug")) {
@@ -93,12 +105,16 @@ int main(int argc, char *argv[]) {
                 fout << endl;
             }
             fout.close();
-            cerr << "Done for " << line << endl;
+            cerr << "Done for " << img_name << endl;
         }
         fin.close();
     } else {
+        if (vm.count("bounding-box")) {
+            bounding_box = vm["bounding-box"].as<vector<float> >();
+        }
         runSearch(vm["dir"].as<string>(),
                 query,
+                bounding_box,
                 invIdx,
                 imgStats,
                 ids);
