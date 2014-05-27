@@ -285,24 +285,32 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
         const map<int, vector<pair<float,float> > > &vws,
         const string &dir) {
     int K = 100;
-    cout << "Geometrical Reranking of first " << K << " elements" << endl;
+    int TAU = 20; // ignore less than this number of inliers
+    cerr << "Geometrical Reranking of first " << K << " elements" << endl;
     vector<pair<int,int> > num_inliers;
     for (int i = 0; i < min(K, (int) rankedList.size()); i++) {
         auto vws2 = readDescriptorsWithPos(
                 dir + "/" + rankedList[i].first + ".txt",
                 vector<float>());
         int inliers = countFInliers(vws, vws2);
+        if (inliers < TAU) inliers = 0;
+//        cerr << "got inliers: " << rankedList[i].first << " " << inliers << endl;
         num_inliers.push_back(make_pair(inliers, i));
     }
     sort(num_inliers.begin(), num_inliers.end());
-    // SWAPS in main list
+    // re-rank
     int i = 0;
+    vector<pair<string, float> > res;
+    vector<bool> done(rankedList.size(), false);
     for (auto iter = num_inliers.begin(); 
-            iter != num_inliers.end(); ++iter, ++i) {
-        if (iter->second > i) {
-            auto temp = rankedList[iter->second];
-            rankedList[iter->second] = rankedList[i];
-            rankedList[i] = temp;
+            iter != num_inliers.end() && iter->first > 0; ++iter, ++i) {
+        res.push_back(rankedList[iter->second]);
+        done[iter->first] = true;
+    }
+    for (int i = 0; i < rankedList.size(); i++) {
+        if (! done[i]) {
+            res.push_back(rankedList[i]);
         }
     }
+    rankedList = res;
 }
