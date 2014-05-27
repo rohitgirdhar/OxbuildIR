@@ -285,7 +285,7 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
         const map<int, vector<pair<float,float> > > &vws,
         const string &dir) {
     int K = 100;
-    int TAU = 20; // ignore less than this number of inliers
+    int TAU = 10; // ignore less than this number of inliers
     cerr << "Geometrical Reranking of first " << K << " elements" << endl;
     vector<pair<int,int> > num_inliers;
     for (int i = 0; i < min(K, (int) rankedList.size()); i++) {
@@ -297,7 +297,12 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
 //        cerr << "got inliers: " << rankedList[i].first << " " << inliers << endl;
         num_inliers.push_back(make_pair(inliers, i));
     }
-    sort(num_inliers.begin(), num_inliers.end());
+    // sort in descending order of first element 
+    sort(num_inliers.begin(), 
+            num_inliers.end(),
+            [](const pair<int,int> a, const pair<int,int> b) {
+                return a.first > b.first; // sort only on first
+            });
     // re-rank
     int i = 0;
     vector<pair<string, float> > res;
@@ -307,6 +312,9 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
         res.push_back(rankedList[iter->second]);
         done[iter->first] = true;
     }
+    cerr << "Reranked " << count_if(done.begin(), 
+            done.end(),
+            [](bool d) { return d; }) << endl;
     for (int i = 0; i < rankedList.size(); i++) {
         if (! done[i]) {
             res.push_back(rankedList[i]);
