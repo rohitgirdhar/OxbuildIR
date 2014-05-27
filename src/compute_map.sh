@@ -44,11 +44,11 @@ do
     ap_o=`${COMPUTE_AP_EXEC} ${1}/${fbase} ${TMP_DIR}/${qimg}.out ${SEL_LIST}`
     ap=`echo ${ap_o} | sed -e 's/[eE]+*/\\*10\\^/'` # to handle scientific notation for bc
     echo $qimg $ap_o '=' $ap
-# IGNORE NAN values
-#    if [ $ap = "-nan" ]
-#    then
-#        continue
-#    fi
+    # IGNORE NAN values
+    if [ $ap = "-nan" ]
+    then
+        continue
+    fi
     tot=$(bc <<< "scale=2;$tot+$ap")
     count=`expr $count + 1`
 done < $TMP_Q_FILE 3< $TMP_FILE
@@ -56,4 +56,4 @@ done < $TMP_Q_FILE 3< $TMP_FILE
 echo -n 'mAP: '
 bc <<< "scale=2;$tot/$count"
 
-rm -rf $TMP_FILE $TMP_DIR $TMP_Q_FILE
+#rm -rf $TMP_FILE $TMP_DIR $TMP_Q_FILE

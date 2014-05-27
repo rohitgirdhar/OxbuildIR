@@ -60,6 +60,9 @@ bool isInside(float x, float y, vector<float> bounding_box) {
 
 map<int, int> readDescriptorsWithCounts(string fpath,
         vector<float> bounding_box) {
+    if (bounding_box.size() == 4) {
+        cerr << "Using bounding box to filter "<< fpath << endl;
+    }
     map<int,int> descs;
     ifstream fin(fpath.c_str());
     if (!fin.is_open()) {
@@ -141,9 +144,10 @@ vector<pair<string, float> > getClosestImgs(
             if (wordCounts.count(img) <= 0) {
                 wordCounts[img] = 0;
             }
-//            float tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].second);
-            double tf = min(iter->second, imgs_tfs[img]) * 1.0 / max( imgStats[img].first, total_vw_in_query);
-            double idf = log10(imgStats.size() * 1.0 / imgs_tfs.size());
+            double tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].second);
+            //double tf = min(iter->second, imgs_tfs[img]) * 1.0 / max( imgStats[img].first, total_vw_in_query);
+            double idf = imgStats.size() * 1.0 / imgs_tfs.size();
+            //double idf = log10(imgStats.size() * 1.0 / imgs_tfs.size());
             wordCounts[img] += tf * idf;
         }
         iter++;

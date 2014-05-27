@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
             string img_name;
             float qx1, qx2, qy1, qy2;
             iss >> img_name >> qx1 >> qy1 >> qx2 >> qy2;
+            bounding_box.clear();
             bounding_box.push_back(qx1);
             bounding_box.push_back(qy1);
             bounding_box.push_back(qx2);
