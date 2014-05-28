@@ -297,11 +297,14 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
 //        cerr << "got inliers: " << rankedList[i].first << " " << inliers << endl;
         num_inliers.push_back(make_pair(inliers, i));
     }
-    // sort in descending order of first element 
+    // sort in descending order of first element and ascending or second 
     sort(num_inliers.begin(), 
             num_inliers.end(),
             [](const pair<int,int> a, const pair<int,int> b) {
-                return a.first > b.first; // sort only on first
+                if (a.first != b.first)
+                    return a.first > b.first; // sort only on first
+                else 
+                    return a.second < b.second;
             });
     // re-rank
     int i = 0;
@@ -310,7 +313,7 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
     for (auto iter = num_inliers.begin(); 
             iter != num_inliers.end() && iter->first > 0; ++iter, ++i) {
         res.push_back(rankedList[iter->second]);
-        done[iter->first] = true;
+        done[iter->second] = true;
     }
     cerr << "Reranked " << count_if(done.begin(), 
             done.end(),
