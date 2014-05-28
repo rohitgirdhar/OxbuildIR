@@ -46,7 +46,7 @@ echo 'Writing output into' $TMP_DIR
 K_arr=($K)
 IFS=$'\n'
 MAX_K=`echo "${K_arr[*]}" | sort -nr | head -n1`
-echo "MAX K = " ${MAX_K} "out of ${K}"
+echo "MAX K = ${MAX_K} out of ${K}"
 bash runIR_batch.sh $TMP_FILE $IP_DIR $TMP_DIR $MAX_K
 echo 'Done'
 
@@ -62,7 +62,6 @@ for k in ${K_arr[@]}; do
 done
 
 for k in ${K_arr[@]}; do
-    head -n${k} ${TMP_DIR}/${qimg}.out > ${TMP_DIR}/${qimg}_${k}.out
     echo "---AP values (at K= ${k})---"
     while read line && read -u 3 line2
     do
