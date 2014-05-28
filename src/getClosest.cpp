@@ -18,6 +18,8 @@ using namespace std;
 #define INV_IDX_FNAME "invIndex.txt"
 #define IMG_STATS_FNAME "imgStats.txt"
 
+int TAU_FOR_GEOM_RERANK = 20; // default value
+
 void runSearch(string dir,
         string query,
         vector<float> bounding_box,
@@ -37,7 +39,7 @@ void runSearch(string dir,
     vws.clear(); // for memory free
     map<int, vector<pair<float,float> > > vws_pos = readDescriptorsWithPos(dir + "/" +
             query + ".txt", bounding_box);
-    geometricReranking(outputIDs, vws_pos, dir);
+    geometricReranking(outputIDs, vws_pos, dir, TAU_FOR_GEOM_RERANK);
     cerr << "Time in search " << clock() - start_time << " ms" << endl;
 }
 
@@ -53,6 +55,8 @@ int main(int argc, char *argv[]) {
         ("output-dir,o", po::value<string>(), "Outputs directory. Required if q = -1")
         ("bounding-box,b", po::value<vector<float> >()->multitoken(), "The bounding box coordinates, in oxford query file order. qx1, qy1, qx2, qy2")
         ("geom-rerank,r", po::bool_switch()->default_value(false), "Pass flag to perform geometric reranking")
+        ("geom-rerank-tau,t", po::value<int>()->default_value(TAU_FOR_GEOM_RERANK), 
+         "Min # of inliers to consider for geometric reranking")
         ("debug,g", po::bool_switch()->default_value(false), "Set flag to print scores in output")
         ;
 
@@ -70,6 +74,7 @@ int main(int argc, char *argv[]) {
         cout << desc << endl;
         return -1;
     }
+    TAU_FOR_GEOM_RERANK = vm["geom-rerank-tau"].as<int>();
 
     int K = vm["num-select"].as<int>();
     map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["input-dir"].as<string>() + "/" + INV_IDX_FNAME);

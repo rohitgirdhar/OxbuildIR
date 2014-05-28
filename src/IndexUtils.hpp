@@ -281,11 +281,14 @@ int countFInliers(map<int, vector<pair<float, float> > > vws1,
     return count_if(mask.begin(), mask.end(), [](uchar d){ return d; });
 }
 
+/**
+ * @param TAU ignore the inliers if # < TAU
+ */
 void geometricReranking(vector<pair<string, float> > &rankedList,
         const map<int, vector<pair<float,float> > > &vws,
-        const string &dir) {
+        const string &dir,
+        int TAU) {
     int K = 100;
-    int TAU = 10; // ignore less than this number of inliers
     cerr << "Geometrical Reranking of first " << K << " elements" << endl;
     vector<pair<int,int> > num_inliers;
     for (int i = 0; i < min(K, (int) rankedList.size()); i++) {
