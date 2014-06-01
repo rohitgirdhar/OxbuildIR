@@ -28,7 +28,13 @@ fi
 TMP_FILE=`mktemp`
 TMP_Q_FILE=`mktemp`
 #TMP_DIR=`mktemp -d`
-TMP_DIR=/tmp/user/1000/oxbuild_exp/`basename ${SEL_LIST} .txt`/
+if [ -z $SEL_LIST ]
+then
+    TMPDIR_NAME="full"
+else
+    TMPDIR_NAME=`basename ${SEL_LIST} .txt`
+fi
+TMP_DIR=/tmp/user/1000/oxbuild_exp/${TMPDIR_NAME}/
 mkdir -p $TMP_DIR
 tot=0
 count=0
