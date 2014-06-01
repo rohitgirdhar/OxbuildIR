@@ -27,7 +27,9 @@ if [ -z "$K" ]; then
 fi
 TMP_FILE=`mktemp`
 TMP_Q_FILE=`mktemp`
-TMP_DIR=`mktemp -d`
+#TMP_DIR=`mktemp -d`
+TMP_DIR=/tmp/user/1000/oxbuild_exp/`basename ${SEL_LIST} .txt`/
+mkdir -p $TMP_DIR
 tot=0
 count=0
 

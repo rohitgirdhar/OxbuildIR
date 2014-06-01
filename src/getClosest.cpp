@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
-#include <ctime>
+#include <sys/time.h>
 #include "IndexUtils.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -20,6 +20,12 @@ using namespace std;
 
 int TAU_FOR_GEOM_RERANK = 20; // default value
 
+int diff_ms(timeval t1, timeval t2)
+{
+    return (((t1.tv_sec - t2.tv_sec) * 1000000) + 
+            (t1.tv_usec - t2.tv_usec))/1000;
+}
+
 void runSearch(string dir,
         string query,
         vector<float> bounding_box,
@@ -27,7 +33,8 @@ void runSearch(string dir,
         const map<string, pair<int, int> > &imgStats,
         vector<pair<string, float> > &outputIDs,
         bool geomRerank) {
-    int start_time = clock();
+    timeval ts_start, ts_end;
+    gettimeofday(&ts_start, NULL);
     map<int, int> vws = readDescriptorsWithCounts(dir + "/" +
             query + ".txt", bounding_box);
     outputIDs = getClosestImgs(
@@ -35,12 +42,14 @@ void runSearch(string dir,
             dir,
             invIdx,
             imgStats);
-    if (!geomRerank) return;
-    vws.clear(); // for memory free
-    map<int, vector<pair<float,float> > > vws_pos = readDescriptorsWithPos(dir + "/" +
-            query + ".txt", bounding_box);
-    geometricReranking(outputIDs, vws_pos, dir, TAU_FOR_GEOM_RERANK);
-    cerr << "Time in search " << clock() - start_time << " ms" << endl;
+    if (geomRerank) {
+        vws.clear(); // for memory free
+        map<int, vector<pair<float,float> > > vws_pos = readDescriptorsWithPos(dir + "/" +
+                query + ".txt", bounding_box);
+        geometricReranking(outputIDs, vws_pos, dir, TAU_FOR_GEOM_RERANK);
+    }
+    gettimeofday(&ts_end, NULL);
+    cerr << "Elapsed time (ms) : " << diff_ms(ts_end, ts_start) << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -53,7 +62,8 @@ int main(int argc, char *argv[]) {
         ("num-select,k", po::value<int>()->required(), "num of images to select")
         ("query-file,f", po::value<string>(), "Query image IDs file path. Required if q = -1")
         ("output-dir,o", po::value<string>(), "Outputs directory. Required if q = -1")
-        ("bounding-box,b", po::value<vector<float> >()->multitoken(), "The bounding box coordinates, in oxford query file order. qx1, qy1, qx2, qy2")
+        ("bounding-box,b", po::value<vector<float> >()->multitoken(), 
+         "The bounding box coordinates, in oxford query file order. qx1, qy1, qx2, qy2")
         ("geom-rerank,r", po::bool_switch()->default_value(false), "Pass flag to perform geometric reranking")
         ("geom-rerank-tau,t", po::value<int>()->default_value(TAU_FOR_GEOM_RERANK), 
          "Min # of inliers to consider for geometric reranking")
