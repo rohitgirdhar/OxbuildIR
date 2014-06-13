@@ -310,8 +310,8 @@ int countFInliers(map<int, vector<pair<float, float> > > vws1,
 void geometricReranking(vector<tuple<string, float, int> > &rankedList,
         const map<int, vector<pair<float,float> > > &vws,
         const string &dir,
-        int TAU) {
-    int K = 100;
+        int TAU,
+        int K) {
     cerr << "Geometrical Reranking of first " << K << " elements" << endl;
     vector<pair<int,int> > num_inliers;
     for (int i = 0; i < min(K, (int) rankedList.size()); i++) {

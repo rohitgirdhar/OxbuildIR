@@ -20,6 +20,7 @@ using namespace std;
 #define IMG_STATS_FNAME "imgStats.txt"
 
 int TAU_FOR_GEOM_RERANK = 20; // default value
+int NUM_IMGS_TO_GEOM_RERANK = 100; // default_value
 
 int diff_ms(timeval t1, timeval t2)
 {
@@ -47,7 +48,7 @@ void runSearch(string dir,
         vws.clear(); // for memory free
         map<int, vector<pair<float,float> > > vws_pos = readDescriptorsWithPos(dir + "/" +
                 query + ".txt", bounding_box);
-        geometricReranking(outputIDs, vws_pos, dir, TAU_FOR_GEOM_RERANK);
+        geometricReranking(outputIDs, vws_pos, dir, TAU_FOR_GEOM_RERANK, NUM_IMGS_TO_GEOM_RERANK);
     }
     gettimeofday(&ts_end, NULL);
     cerr << "Elapsed time (ms) : " << diff_ms(ts_end, ts_start) << endl;
@@ -68,6 +69,8 @@ int main(int argc, char *argv[]) {
         ("geom-rerank,r", po::bool_switch()->default_value(false), "Pass flag to perform geometric reranking")
         ("geom-rerank-tau,t", po::value<int>()->default_value(TAU_FOR_GEOM_RERANK), 
          "Min # of inliers to consider for geometric reranking")
+        ("geom-rerank-k", po::value<int>()->default_value(NUM_IMGS_TO_GEOM_RERANK), 
+         "Number of images to geometric rerank")
         ("debug,g", po::bool_switch()->default_value(false), "Set flag to print scores in output")
         ;
 
@@ -86,6 +89,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     TAU_FOR_GEOM_RERANK = vm["geom-rerank-tau"].as<int>();
+    NUM_IMGS_TO_GEOM_RERANK = vm["geom-rerank-k"].as<int>();
 
     int K = vm["num-select"].as<int>();
     map<int, map<string, int> > invIdx = readFromFileInvIndex(vm["input-dir"].as<string>() + "/" + INV_IDX_FNAME);
