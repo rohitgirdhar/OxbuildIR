@@ -220,6 +220,28 @@ void dumpToFileInvIndex(string output_fpath,
     fout_idf.close();
 }
 
+/**
+ * Write index to binary file.
+ * only for experiment. just writes the expected file size in text
+ */
+void dumpToBinFileInvIndex(string output_sizefile_fpath,
+        map<int, map<string, int> > invIdx) {
+    int total = 0; // in bytes
+    total = 4; // vocab size (1M)
+    for (auto iter = invIdx.begin();
+            iter != invIdx.end(); ++iter) {
+        total += 2; // a number representing the total number of images (<65K)
+        for (auto iter2 = iter->second.begin(); 
+                iter2 != iter->second.end(); ++iter2) {
+            total += 2 + 1; // (imgid and freq)
+        }
+    }
+    ofstream fout(output_sizefile_fpath.c_str(), ios::out);
+    fout << (total / (1024.0 * 1024.0)) << "MB" << endl;
+    fout.close();
+}
+
+
 map<int, map<string, int> > readFromFileInvIndex(string fpath) {
     ifstream fin(fpath.c_str());
     string line;

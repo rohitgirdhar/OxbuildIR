@@ -74,6 +74,9 @@ int main(int argc, char *argv[]) {
     dumpToFileInvIndex(vm["output"].as<string>() + "/" + INV_IDX_FNAME,
             vm["output"].as<string>() + "/" + INV_IDX_FREQ_FNAME,
             invIdx);
+    // Write a binary index (for experiment sake)
+    dumpToBinFileInvIndex(vm["output"].as<string>() + "/" + "binFileSize.txt",
+            invIdx);
     dumpToFileImgStats(vm["output"].as<string>() + "/" + IMG_STATS_FNAME,
             img2total_max);
                 
