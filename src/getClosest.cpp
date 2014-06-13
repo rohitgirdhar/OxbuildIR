@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <tuple>
 #include <sys/time.h>
 #include "IndexUtils.hpp"
 #include <boost/filesystem.hpp>
@@ -31,7 +32,7 @@ void runSearch(string dir,
         vector<float> bounding_box,
         const map<int, map<string, int> > &invIdx,
         const map<string, pair<int, int> > &imgStats,
-        vector<pair<string, float> > &outputIDs,
+        vector<tuple<string, float, int> > &outputIDs, // id, tf-idf, #inliers
         bool geomRerank) {
     timeval ts_start, ts_end;
     gettimeofday(&ts_start, NULL);
@@ -92,7 +93,7 @@ int main(int argc, char *argv[]) {
     map<string, pair<int, int> > imgStats = readFromFileImgStats(vm["input-dir"].as<string>() + "/" + IMG_STATS_FNAME);
 
     string query = vm["query"].as<string>();
-    vector<pair<string,float> > ids;
+    vector<tuple<string, float, int>> ids;
     vector<float> bounding_box;
     if (query.compare("-1") == 0) {
         if (!vm.count("query-file") || !vm.count("output-dir")) {
@@ -124,9 +125,9 @@ int main(int argc, char *argv[]) {
                     vm["geom-rerank"].as<bool>());
             ofstream fout((output_dir + "/" + img_name + ".out").c_str(), ios::out);
             for (int i = 0; i < min((int)ids.size(), K); i++) {
-                fout << ids[i].first.substr(5);
+                fout << get<0>(ids[i]).substr(5);
                 if (vm["debug"].as<bool>()) {
-                    fout << " " << ids[i].second;
+                    fout << " " << get<1>(ids[i]) << " " << get<2>(ids[i]);
                 }
                 fout << endl;
             }
@@ -146,9 +147,9 @@ int main(int argc, char *argv[]) {
                 ids,
                 vm["geom-rerank"].as<bool>());
         for (int i = 0; i < min((int)ids.size(), K); i++) {
-            cout << ids[i].first.substr(5);
+            cout << get<0>(ids[i]).substr(5);
             if (vm["debug"].as<bool>()) {
-                cout << " " << ids[i].second;
+                cout << " " << get<1>(ids[i]) << " " << get<2>(ids[i]);
             }
             cout << endl;
         }

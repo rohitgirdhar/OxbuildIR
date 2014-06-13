@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <tuple>
 #include <opencv2/opencv.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -152,7 +153,7 @@ pair<int,int> getWordCounts(int visualWord, string img_id, string dir) {
  * @param vws The visual words set of the query image
  * @param N The number of images to search from
  */
-vector<pair<string, float> > getClosestImgs(
+vector<tuple<string, float, int> > getClosestImgs(
         map<int,int> vws, 
         string dir,
         map<int, map<string, int> > invIdx,
@@ -183,11 +184,11 @@ vector<pair<string, float> > getClosestImgs(
         iter++;
     }
     multimap<double, string> countsToImgs = flip_map(wordCounts);
-    vector<pair<string, float> > res;
+    vector<tuple<string, float, int>> res;
     for (auto iter2 = countsToImgs.rbegin(); 
             iter2 != countsToImgs.rend();
             ++iter2) {
-        res.push_back(make_pair(iter2->second, iter2->first));
+        res.push_back(make_tuple(iter2->second, iter2->first, 0));
     }
     return res;
 }
@@ -306,7 +307,7 @@ int countFInliers(map<int, vector<pair<float, float> > > vws1,
 /**
  * @param TAU ignore the inliers if # < TAU
  */
-void geometricReranking(vector<pair<string, float> > &rankedList,
+void geometricReranking(vector<tuple<string, float, int> > &rankedList,
         const map<int, vector<pair<float,float> > > &vws,
         const string &dir,
         int TAU) {
@@ -315,9 +316,10 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
     vector<pair<int,int> > num_inliers;
     for (int i = 0; i < min(K, (int) rankedList.size()); i++) {
         auto vws2 = readDescriptorsWithPos(
-                dir + "/" + rankedList[i].first + ".txt",
+                dir + "/" + get<0>(rankedList[i]) + ".txt",
                 vector<float>());
         int inliers = countFInliers(vws, vws2);
+        get<2>(rankedList[i]) = inliers;
         if (inliers < TAU) inliers = 0;
 //        cerr << "got inliers: " << rankedList[i].first << " " << inliers << endl;
         num_inliers.push_back(make_pair(inliers, i));
@@ -333,7 +335,7 @@ void geometricReranking(vector<pair<string, float> > &rankedList,
             });
     // re-rank
     int i = 0;
-    vector<pair<string, float> > res;
+    vector<tuple<string, float, int>> res;
     vector<bool> done(rankedList.size(), false);
     for (auto iter = num_inliers.begin(); 
             iter != num_inliers.end() && iter->first > 0; ++iter, ++i) {
