@@ -106,13 +106,15 @@ int main(int argc, char *argv[]) {
         while (getline(fin, line)) {
             istringstream iss(line);
             string img_name;
-            float qx1, qx2, qy1, qy2;
+            float qx1 = -1, qx2 = -1, qy1 = -1, qy2 = -1;
             iss >> img_name >> qx1 >> qy1 >> qx2 >> qy2;
             bounding_box.clear();
-            bounding_box.push_back(qx1);
-            bounding_box.push_back(qy1);
-            bounding_box.push_back(qx2);
-            bounding_box.push_back(qy2);
+            if (qx1 != -1 && qx2 != -1 && qy1 != -1 && qy2 != -1) {
+                bounding_box.push_back(qx1);
+                bounding_box.push_back(qy1);
+                bounding_box.push_back(qx2);
+                bounding_box.push_back(qy2);
+            }
             runSearch(vm["dir"].as<string>(),
                     img_name,
                     bounding_box,
