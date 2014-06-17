@@ -80,7 +80,7 @@ for k in ${K_arr[@]}; do
         ap=`echo ${ap_o} | sed -e 's/[eE]+*/\\*10\\^/'` # to handle scientific notation for bc
         echo $qimg $ap_o '=' $ap
         # IGNORE NAN values
-        if [ $ap = "-nan" ]
+        if [ $ap = "-nan" ] || [ $ap = "-1" ]
         then
             continue
         fi
