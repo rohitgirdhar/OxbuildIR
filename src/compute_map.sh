@@ -3,15 +3,17 @@
 HELP_TEXT="Usage ./compute_map.sh -g <path to GT directory>
     -e <path to compute_map executable> 
     -i <input dir, with invIndex.txt etc>
+    [-r (set flag to re-use output dir already created. Useful for testing changes to compute_p) ]
     [-s <Path to file with names of selected images, to use with compute_ap> (optional)]
     [<K : precision at K. Use only with using compute_p. Otherwise (for AP) use #images> ...] (multiple)"
 
-while getopts ":g:e:i:s:" opt; do
+while getopts ":g:e:i:s:r" opt; do
     case "$opt" in 
         g) GT_DIR=${OPTARG} ;;
         e) COMPUTE_AP_EXEC=${OPTARG} ;;
         i) IP_DIR=${OPTARG} ;;
         s) SEL_LIST=${OPTARG} ;;
+        r) REUSE_OUTPUT_DIR=1 ;;
         \?) echo $HELP_TEXT >&2
             exit -1
             ;;
@@ -50,13 +52,17 @@ do
 done
 echo 'Done'
 
-echo 'Writing output into' $TMP_DIR
-K_arr=($K)
-IFS=$'\n'
-MAX_K=`echo "${K_arr[*]}" | sort -nr | head -n1`
-echo "MAX K = ${MAX_K} out of ${K}"
-bash runIR_batch.sh $TMP_FILE $IP_DIR $TMP_DIR $MAX_K
-echo 'Done'
+if [ -d $TMP_DIR ] && [ $REUSE_OUTPUT_DIR ]; then
+    echo "NOT COMPUTING IR. Reusing $TMP_DIR"
+else
+    echo 'Writing output into' $TMP_DIR
+    K_arr=($K)
+    IFS=$'\n'
+    MAX_K=`echo "${K_arr[*]}" | sort -nr | head -n1`
+    echo "MAX K = ${MAX_K} out of ${K}"
+    bash runIR_batch.sh $TMP_FILE $IP_DIR $TMP_DIR $MAX_K
+    echo 'Done'
+fi
 
 ## CREATE the smaller files (_k)
 echo "Creating the smaller files for evaluation"
