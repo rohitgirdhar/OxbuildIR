@@ -52,14 +52,15 @@ do
 done
 echo 'Done'
 
+K_arr=($K)
+IFS=$'\n'
+MAX_K=`echo "${K_arr[*]}" | sort -nr | head -n1`
+echo "MAX K = ${MAX_K} out of ${K}"
+
 if [ -d $TMP_DIR ] && [ $REUSE_OUTPUT_DIR ]; then
     echo "NOT COMPUTING IR. Reusing $TMP_DIR"
 else
     echo 'Writing output into' $TMP_DIR
-    K_arr=($K)
-    IFS=$'\n'
-    MAX_K=`echo "${K_arr[*]}" | sort -nr | head -n1`
-    echo "MAX K = ${MAX_K} out of ${K}"
     bash runIR_batch.sh $TMP_FILE $IP_DIR $TMP_DIR $MAX_K
     echo 'Done'
 fi
