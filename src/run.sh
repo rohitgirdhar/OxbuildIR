@@ -21,6 +21,7 @@ if [ ! $REUSE_RESULTS ]; then
     bash createSubsetDir.sh ../oxford_building_dataset/word_oxc1_hesaff_sift_16M_1M/ subset_dir/ ${1}
     mkdir -p $INDEX_DIR
     ./buildIndex -o $INDEX_DIR -d subset_dir/
+else
     REUSE_FLAG="-r"
 fi
 bash  compute_map.sh $REUSE_FLAG -g ../oxford_building_dataset/gt/ -e eval/compute_p -i $INDEX_DIR -s ${1} 1 3 5 10
