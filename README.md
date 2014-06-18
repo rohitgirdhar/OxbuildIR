@@ -1,6 +1,11 @@
 Instance Retrieval (Oxford Building)
 ====================================
 
+NOTE
+----
+- the output from atom and laptop vary due to different opencv versions. Hence different geometrical reranking. otherwise,
+exact same output.
+
 Sample Usage
 ------------
 
