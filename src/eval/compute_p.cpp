@@ -40,8 +40,8 @@ compute_p(const set<string>& pos, const set<string>& amb, const vector<string>& 
 
     j++;
   }
-  if (intersect_size == pos.size()) { // means all positive images in the set
-    cerr << "All the pos images (" << pos.size() << ") were in set" << endl;
+  if (intersect_size == original_pos_set_size) { // means all positive images in the set
+    cerr << "All the pos images (" << intersect_size << ") were in set" << endl;
     return 1;
   }
   p = intersect_size / ( j * 1.0 );
