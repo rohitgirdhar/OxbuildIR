@@ -17,7 +17,7 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-void addToIndex(map<int,int> descs, string img_idx, map<int, map<string, int> > &invIdx) {
+void addToIndex(const map<int,int>& descs, string img_idx, map<int, map<string, int> > &invIdx) {
     for (auto iter = descs.begin(); iter != descs.end(); iter++) {
         if (invIdx.count(iter->first) <= 0) {
             // not exists
@@ -59,7 +59,8 @@ int main(int argc, char *argv[]) {
     while (rdi != end) {
         img_fpath = (*rdi).path().string();
         img_fname = (*rdi).path().filename().string();
-        map<int,int> descs = readDescriptorsWithCounts(img_fpath, vector<float>());
+        map<int,int> descs;
+        readDescriptorsWithCounts(img_fpath, vector<float>(), descs);
         int total_descs = 0, max_descs = -1;
         for(auto iter = descs.begin(); iter != descs.end(); ++iter) {
             total_descs += iter->second;

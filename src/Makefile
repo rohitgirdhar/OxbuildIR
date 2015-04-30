@@ -1,6 +1,6 @@
 BOOST_ROOT=/home/rgirdhar/data/Software/cpp/boost_1_57_0/
 BOOST_LIBS=/home/rgirdhar/data/Software/cpp/boost_1_57_0/stage/libs/
-CXXFLAGS+=-std=c++0x -O2 `pkg-config --cflags opencv`
+CXXFLAGS+=-std=c++0x -O2 `pkg-config --cflags opencv` -fopenmp
 BOOST_LIBS=-L/usr/local/lib
 INC_BOOST=-I${BOOST_ROOT}
 LIBS=$(BOOST_LIBS) `pkg-config --libs opencv`

@@ -61,16 +61,16 @@ bool isInside(float x, float y, vector<float> bounding_box) {
     return true;
 }
 
-map<int, int> readDescriptorsWithCounts(string fpath,
-        vector<float> bounding_box) {
+void readDescriptorsWithCounts(string fpath,
+        const vector<float>& bounding_box, map<int,int>& descs) {
+    descs.clear();
     if (bounding_box.size() == 4) {
         cerr << "Using bounding box to filter "<< fpath << endl;
     }
-    map<int,int> descs;
     ifstream fin(fpath.c_str());
     if (!fin.is_open()) {
         cerr << "Unable to open file: " << fpath << endl;
-        return map<int,int>();
+        return;
     }
     string line;
     getline(fin, line); getline(fin, line);
@@ -86,7 +86,6 @@ map<int, int> readDescriptorsWithCounts(string fpath,
         descs[desc]++;
     }
     fin.close();
-    return descs;
 }
 
 map<int, vector<pair<float,float> > > readDescriptorsWithPos(string fpath,
@@ -176,9 +175,10 @@ vector<tuple<string, float, int> > getClosestImgs(
                 wordCounts[img] = 0;
             }
             double tf = 0.5f + (0.5f + imgs_tfs[img] / imgStats[img].second);
+            //double tf = imgs_tfs[img] * 1.0f / imgStats[img].second;
             //double tf = min(iter->second, imgs_tfs[img]) * 1.0 / max( imgStats[img].first, total_vw_in_query);
             double idf = imgStats.size() * 1.0 / imgs_tfs.size();
-            //double idf = log10(imgStats.size() * 1.0 / imgs_tfs.size());
+            //double idf = log(1 + imgStats.size() * 1.0 / imgs_tfs.size());
             wordCounts[img] += tf * idf;
         }
         iter++;

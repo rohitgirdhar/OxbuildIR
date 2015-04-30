@@ -37,6 +37,7 @@ else
     TMPDIR_NAME=`basename ${SEL_LIST} .txt`
 fi
 TMP_DIR=/tmp/user/1000/oxbuild_exp/${TMPDIR_NAME}/
+TMP_DIR=~/data/Work/Datasets/processed/0008_OxBuildings/baselines/BoW/matches/
 mkdir -p $TMP_DIR
 tot=0
 count=0
